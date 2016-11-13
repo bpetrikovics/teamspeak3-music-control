@@ -1,0 +1,375 @@
+#!/usr/bin/env perl
+
+use strict;
+
+use Mojolicious::Lite;
+use Mojo::JSON qw(decode_json encode_json);
+use Audio::MPD;
+use POSIX;
+use Dir::Self;
+
+         use lib __DIR__ . "/lib";
+
+
+my $VERSION = "0.9.2-2";
+
+my $config = plugin 'Config' => { file => __DIR__ . "/MojoBot.conf" };
+
+app->mode($config->{mode} // "development");
+
+app->log(Mojo::Log->new(
+    path  => $config->{mojo_log} // "mojo.log",
+    level => 'debug')
+);
+
+app->log->info("MojoBot $VERSION starting up in " . app->mode() . " mode");
+
+plugin AccessLog => {
+    log    => $config->{access_log} // "access.log",
+    format =>  "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"",
+};
+
+# If not executed via hypnotoad or morbo, provide some default params
+# We'll retrieve the hypnotoad listen port and use the same value
+@ARGV = qw/daemon -l/;
+push @ARGV, @{$config->{hypnotoad}->{listen}};
+
+# global MPD object so we don't spawn a new one every time...
+my $mpd;
+
+### Scheduled job to clean up after the TS process once it dies
+Mojo::IOLoop->recurring(1 => sub {
+    while ((my $pid = waitpid(-1, WNOHANG)) > 0) {
+	app->log->debug("Reaped child pid: $pid");
+    }
+});
+
+### Non-mojo functions - my helpers
+# Is teamspeak client running?
+sub isTsRunning {
+    my $out = `ps -ef | grep ts3client_linux_amd64 | grep -v grep`;
+
+    return if $out eq "";
+
+    my @parsed = split ' ', $out;
+    return $parsed[1];
+}
+
+# return hash containing system status
+sub getStatus {
+    my $status;
+    my $t;
+    my $song;
+    my $mpdError;
+
+    eval {
+	app->log->debug("Spawning new MPD object");
+	$mpd = new Audio::MPD;
+    } unless $mpd;
+
+    if ($@) {
+	$mpdError = 1;
+    } else {
+	$status = $mpd->status;
+	$song = $mpd->current;
+	$t = $status->time;
+    }
+
+    my $ret = {
+        'botOnline'     => isTsRunning()  ? "1" : "0",
+        'playerState'   => $mpdError ? "error" : $status->state,
+        'playerRandom'  => $mpdError ? "N/A"   : $status->random,
+        'playerRepeat'  => $mpdError ? "N/A"   : $status->repeat,
+        'playerVolume'  => $mpdError ? "N/A"   : $status->volume,
+        'currentSong'   => defined($song) ? $song->as_string : "N/A",
+        'timeElapsed'   => defined($t) ? $t->sofar : "N/A",
+        'timeLeft'      => defined($t) ? $t->left  : "N/A",
+        'timeTotal'     => defined($t) ? $t->total : "N/A",
+    };
+
+    return $ret;
+}
+
+### Mojo routes
+
+# This is the player app page
+get '/player' => sub {
+    my $c = shift;
+    my $wsport = $config->{proxy_port} // $config->{hypnotoad}->{listen}[0];
+
+    $c->stash(version => $VERSION);
+    $c->stash(wsport => $wsport);
+
+    # NB it's redundant to specify what to render if there's a template with the same name
+    # as the route
+    $c->render('player');
+};
+
+get '/start' => sub {
+    my $c = shift;
+
+    # Defaulting X display to :20
+    $ENV{DISPLAY} = $config->{xdisplay} // ":20";
+
+    my $error = 0;
+
+    eval {
+	$mpd = new Audio::MPD;
+    } unless $mpd;
+
+    if ($@) {
+	$error += 1;
+    }
+
+    my $pl = $mpd->playlist;
+    $pl->clear;
+    $pl->load($config->{defaultplaylist});
+    $mpd->random(1);
+    $mpd->play;
+
+    my $pid = fork;
+    if (!defined $pid) {
+	$error += 4;
+    } else {
+	if ($pid == 0) {
+	    # We are the new child process, get rid of the original file descriptors
+	    # so we can cleanly fork into the background
+	    open STDIN,  "</dev/null";
+	    open STDOUT, ">/dev/null";
+	    open STDERR, ">/dev/null";
+
+	    # exec() will not return, current process will be replaced by the executed program
+	    # When that exits, the reaper subroutine will clean up after us
+	    exec($config->{ts3client}, "ts3server://" . $config->{teamspeakserver});
+	    # Execution will never get past this line ^^
+	} else {
+	    # we are the parent, so render a response and go on...
+    	    $c->render(
+		json => {
+		    'status'    => $error ? "failed" : "success",
+		    'errorCode' => $error,
+		    }
+		);
+	}
+    }
+};
+
+get '/kill' => sub {
+    my $c = shift;
+
+    my $error = 0;
+
+    eval {
+	$mpd = new Audio::MPD;
+    } unless $mpd;
+
+    if ($@) {
+	$error += 1;
+    } else {
+	if ($mpd->status->state eq "play") {
+	    $mpd->stop;
+	}
+    }
+
+    if (my $pid = isTsRunning()) {
+	`kill $pid`;
+    }
+
+    $c->render(
+	json => {
+	    'status' => $error ? "fail" : "success",
+	    'errorCode' => $error,
+	    }
+    );
+};
+
+get '/next' => sub {
+    my $c = shift;
+
+    my $error = 0;
+
+    eval {
+	$mpd = new Audio::MPD;
+    } unless $mpd;
+
+    if ($@) {
+	$error += 1;
+    } else {
+        $mpd->next unless $error;
+    }
+
+    $c->render(
+	json => {
+	    'status' => $error ? "fail" : "success",
+	    'errorCode' => $error,
+	    }
+    );
+};
+
+get '/prev' => sub {
+    my $c = shift;
+
+    my $error = 0;
+
+    # 1.: try to connect to audio server
+    eval {
+	$mpd = new Audio::MPD;
+    } unless $mpd;
+
+    if ($@) {
+	$error += 1;
+    } else {
+        $mpd->prev unless $error;
+    }
+
+    $c->render(
+	json => {
+	    'status' => $error ? "fail" : "success",
+	    'errorCode' => $error,
+	    }
+    );
+};
+
+get '/stop' => sub {
+    my $c = shift;
+
+    my $error = 0;
+
+    eval {
+	$mpd = new Audio::MPD;
+    } unless $mpd;
+
+    if ($@) {
+	$error += 1;
+    } else {
+        $mpd->stop unless $error;
+    }
+
+    $c->render(
+	json => {
+	    'status' => $error ? "fail" : "success",
+	    'errorCode' => $error,
+	    }
+    );
+};
+
+get '/play' => sub {
+    my $c = shift;
+
+    my $error = 0;
+
+    eval {
+	$mpd = new Audio::MPD;
+    } unless $mpd;
+
+    if ($@) {
+	$error += 1;
+    } else {
+        $mpd->play unless $error;
+    }
+
+    $c->render(
+	json => {
+	    'status' => $error ? "fail" : "success",
+	    'errorCode' => $error,
+	    }
+    );
+};
+
+get '/playlist/:playlist' => sub {
+    my $c = shift;
+
+    my $mpd;
+    my $error;
+
+    my $plname = $c->param('playlist');
+    $plname =~ s/[^a-zA-Z0-9\-\_]//g;
+
+    if ($plname ne "") {
+	eval {
+	    $mpd = new Audio::MPD;
+	};
+
+	if ($@) {
+	    $error += 1;
+	} else {
+	    my $pl = $mpd->playlist;
+
+	    eval {
+		my $state = $mpd->status->state;
+		$pl->clear;
+		$pl->load($plname);
+		if ($state eq "play") { $mpd->play; }
+	    };
+
+	    if ($@) { $error += 4; }
+	    else  { $error = 0; }
+	}
+    }  else {
+	$error += 2;
+    }
+
+    app->log->debug("Cleansed playlist name: $plname");
+
+    $c->render(
+	json => {
+	    'status' => $error ? "failed" : "success",
+	    }
+    );
+};
+
+get '/status' => sub {
+    my $c = shift;
+
+    $c->render(
+	json => getStatus()
+    );
+};
+
+# Websocket - to feed the "main page" with data
+my @wsClients;
+
+websocket '/ws' => sub {
+    my $c = shift;
+
+    $c->app->log->debug('Incoming websocket connection');
+    $c->inactivity_timeout(300);
+
+    $c->on(message => sub {
+	my ($s, $msg) = @_;
+
+	if ($msg eq "wsConnected") {
+	    $c->app->log->debug('Received initial ping from client');
+
+	    $s->send(encode_json({ "wsStatus" => "connected" }));
+	    $s->send({ json => getStatus() });
+
+	    push @wsClients, $s;
+	}
+
+    });
+
+    $c->on(finish => sub {
+	my ($s, $code, $reason) = @_;
+
+	$c->app->log->debug("WebSocket closed with status $code");
+
+	my $index = 0;
+	$index++ until $wsClients[$index] == $s;
+
+	$c->app->log->debug("Leaving client found as index $index, deleting");
+	delete $wsClients[$index];
+    });
+
+};
+
+Mojo::IOLoop->recurring($config->{ws_update_freq}  => sub {
+    for my $client (@wsClients) {
+	$client->send({
+	    json => getStatus()
+	});
+    }
+});
+
+app->secrets([localtime]);
+app->start;

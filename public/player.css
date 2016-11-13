@@ -1,0 +1,49 @@
+body {
+    background: #white;
+    font-family: Verdana, Arial;
+    font-size: 12px;
+}
+
+div#player {
+    background: #f0e0e0;
+    width: 600px;
+    padding: 2px;
+    margin: 2px;
+    border: 1px solid;
+}
+
+div#service {
+    width: 600px;
+    text-align: center;
+    background: #f2f2ea;
+}
+
+div#mpd {
+    width: 600px;
+    background: #f2f2ea;
+}
+
+div#song {
+    width: 600px;
+    background: #f3eae1;
+    font-family: 'Electrolize', sans-serif;
+    font-weight: bold;
+    font-size: 16px;
+    text-align: center;
+    border-top: 1px dotted;
+    border-bottom: 1px dotted;
+}
+
+div#controls {
+    width: 600px;
+    text-align: center;
+    background: #f2f2ea;
+}
+
+div#debug {
+    color: #ffffff;
+}
+
+ul#notes {
+    width: 800px;
+}

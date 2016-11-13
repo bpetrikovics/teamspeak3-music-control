@@ -1,0 +1,3 @@
+MojoBot - Teamspeak bot + Mopidy remote control written in Mojolicious
+
+Documentation and setup instructions coming later...

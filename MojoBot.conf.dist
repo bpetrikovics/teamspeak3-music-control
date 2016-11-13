@@ -1,0 +1,35 @@
+{
+    mode => "production",
+
+    access_log => "/var/log/mojobot/access.log",
+    mojo_log => "//var/log/mojobot/mojo.log",
+
+    # Which X display the teamspeak client should be on
+    xdisplay => ":20",
+
+    # Which ts3 executable to run - other parameters will come from the saved
+    # connection details in Teamspeak
+    ts3client => "/home/mojobot/ts3/ts3client_runscript.sh",
+
+    # Straightforward - used to construct command line for teamspeak
+    # Use this to switch between servers
+    teamspeakserver => "127.0.0.1",
+
+    # Straightforward - when started, the bot will load and play this playlist
+    # through mopidy
+    defaultplaylist => "My_Default_Playlist",
+
+    # How many seconds to wait between pushing status updates through websocket
+    ws_update_freq => 5,
+
+    # Hypnotoad configuration parameters
+    hypnotoad => {
+	listen => ["http://*:8080"],
+    },
+
+    # Optional - if the app is behind a reverse proxy, set its port here
+    # This is needed in the main template to assemble correct websocket port
+    # If missing, we'll try to connect to the hypnotoad listen port
+    proxy_port => "7000",
+
+}
