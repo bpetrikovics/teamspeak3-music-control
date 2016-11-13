@@ -8,9 +8,6 @@ use Audio::MPD;
 use POSIX;
 use Dir::Self;
 
-         use lib __DIR__ . "/lib";
-
-
 my $VERSION = "0.9.2-2";
 
 my $config = plugin 'Config' => { file => __DIR__ . "/MojoBot.conf" };
