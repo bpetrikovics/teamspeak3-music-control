@@ -8,10 +8,12 @@ What you need to get this working:
 * x11vnc - to give remote connectivity to Xvfb
 
 For mopidy:
+
 * Python
 * gmusicapi (via pip)
 * Moopidy-Gmusic (via pip)
 
 For the web frontent:
+
 * Perl
 * mojolicious (from CPAN or package)
