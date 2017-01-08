@@ -27,7 +27,9 @@ Download Teamspeak from http://www.teamspeak.com/downloads (Linux client, 32 or 
 
 Execute the downloaded file and let it install itself. It will create a directory for itself, for example "TeamSpeak3-Client-linux_amd64"
 
-sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc
+Install components with apt-get:
+
+  sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc
 
 Install mopidy, see: https://docs.mopidy.com/en/latest/installation/debian/
 
@@ -41,6 +43,18 @@ Start mopidy once so it creates a default configuration; then kill it and edit t
 * Set up your media location ([local]) and/or Google Music credentials and settings, whichever you want to use.
 * For mopidy-gmusic, you can find configuration details here: https://github.com/mopidy/mopidy-gmusic
 * If you are using locally stored music, run (only once) "mopidy local scan"
+
+At this time, you will need to create your pulseaudio configuration, which you will add to your startup script. You will need to take note of some values, as these can be different in each installation, based on the given host's audio devices.
+
+  pactl stat
+  pactl load-module module-null-sink sink_name=Virtual1
+  pactl load-module module-loopback sink=Virtual1
+
+  pactl list sinks
+  pactl list sources
+
+  pactl set-default-sink x
+  pactl set-default-source y
 
 
 
