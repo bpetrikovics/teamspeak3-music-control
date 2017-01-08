@@ -43,6 +43,11 @@ Install components with apt-get:
 
     sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc libmojolicious-perl libaudio-mpd-perl libdir-self-perl
 
+MOjolicious::Plugins::AccessLog doesn't appear to be available in as debian package (correct me if I'm wrong), so get it from CPAN:
+
+    sudo perl -MCPAN -e shell
+    cpan[1]> install Mojolicious::Plugins::AccessLog
+
 Install mopidy, see: https://docs.mopidy.com/en/latest/installation/debian/
 
 Optionally, for Google Music:
