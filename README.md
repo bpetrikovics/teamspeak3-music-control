@@ -29,7 +29,7 @@ Execute the downloaded file and let it install itself. It will create a director
 
 Install components with apt-get:
 
-   sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc
+    sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc
 
 Install mopidy, see: https://docs.mopidy.com/en/latest/installation/debian/
 
@@ -46,15 +46,15 @@ Start mopidy once so it creates a default configuration; then kill it and edit t
 
 At this time, you will need to create your pulseaudio configuration, which you will add to your startup script. You will need to take note of some values, as these can be different in each installation, based on the given host's audio devices.
 
-   pactl stat
-   pactl load-module module-null-sink sink_name=Virtual1
-   pactl load-module module-loopback sink=Virtual1
+    pactl stat
+    pactl load-module module-null-sink sink_name=Virtual1
+    pactl load-module module-loopback sink=Virtual1
 
-   pactl list sinks
-   pactl list sources
+    pactl list sinks
+    pactl list sources
 
-   pactl set-default-sink x
-   pactl set-default-source y
+    pactl set-default-sink x
+    pactl set-default-source y
 
 
 
