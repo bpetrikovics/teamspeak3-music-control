@@ -114,8 +114,8 @@ At this point, the TS client should appear in your VNC screen. Click through any
 
 * Create a bookmark for the server you want to connect to. You will refer to it by the server address later.
 * Configure TS to use the virtual audio:
-   * Settings->Playback and Capture: Playback/Capture mode: Pulseaudio, default device
-   * Set capture mode to Voice Activation Detection, and set the threshold somewhere between -50 and -40
-   * Unseleft Echo reduction
-   * Under Advanced, unselect Remove background noise
+  * Settings->Playback and Capture: Playback/Capture mode: Pulseaudio, default device
+  * Set capture mode to Voice Activation Detection, and set the threshold somewhere between -50 and -40
+  * Unseleft Echo reduction
+  * Under Advanced, unselect Remove background noise
    
