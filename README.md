@@ -29,7 +29,7 @@ Execute the downloaded file and let it install itself. It will create a director
 
 Install components with apt-get:
 
-    sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc
+    sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc libmojolicious-perl libaudio-mpd-perl libdir-self-perl
 
 Install mopidy, see: https://docs.mopidy.com/en/latest/installation/debian/
 
@@ -113,9 +113,50 @@ At the beginning you will see a black screen and some warnings about lack of aut
 At this point, the TS client should appear in your VNC screen. Click through any license dialogs and then:
 
 * Create a bookmark for the server you want to connect to. You will refer to it by the server address later.
-* Configure TS to use the virtual audio:
-  * Settings->Playback and Capture: Playback/Capture mode: Pulseaudio, default device
-  * Set capture mode to Voice Activation Detection, and set the threshold somewhere between -50 and -40
-  * Unseleft Echo reduction
-  * Under Advanced, unselect Remove background noise
-   
+* Settings->Playback and Capture: Playback/Capture mode: Pulseaudio, default device
+* Set capture mode to Voice Activation Detection, and set the threshold somewhere between -50 and -40
+* Unseleft Echo reduction
+* Under Advanced, unselect Remove background noise
+
+And last, look at any .dist file under the MojoBot directory, rename them (remove the .dist extension) and customize the values/settings in them.
+
+* MojoBot.conf.dist: this is the one you need to really customize, and set paths, what address to listen on, what port the web UI will be accessible from the outsde (in case of using a reverse proxy), what TS server to connect to and which playlist should be played when the bot starts 
+* templates/player.html.ep.dist: most likely you don't need any change, unless you want to alter the HTML, the help text etc.
+
+I also strongly suggest to put the web UI behind a web proxy. I'm using nginx with the below settings:
+
+    upstream mojo {
+        server 127.0.0.1:8080;
+    }
+
+    server {
+        # Plain HTTP
+        listen 7000;
+
+        server_name _;
+
+        root /var/www/html;
+        error_page 502 /502.html;
+
+        # Add index.php to the list if you are using PHP
+        index index.html index.htm;
+
+        access_log /var/log/nginx/access-mojo.log;
+        error_log /var/log/nginx/error-mojo.log;
+
+    location / {
+        proxy_pass http://mojo;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        auth_basic "Restricted";
+        auth_basic_user_file /etc/nginx/mojo.passwd;
+        }
+    }
+
+You can notice that this is also the way I restrict the access to the bot, by a htpasswd file via nginx (as the bot does not offer any authentication out of the box yet).
+
+That's all. Enjoy!
