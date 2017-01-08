@@ -105,7 +105,7 @@ This should work as crontab setting:
     # m h  dom mon dow   command
     @reboot /path/to/startit > /tmp/start.out 2>&1
 
-Now, you'll need to create the initial Teamspeak config. Rin the start script manually once so you have the dummy X server and the VNC server running, and connect to it with any VNC client you line (I use one from the Chrome app store).
+Now, you'll need to create the initial Teamspeak config. Run the start script manually once so you have the dummy X server and the VNC server running, and connect to it with any VNC client you line (I use one from the Chrome app store).
 
 At the beginning you will see a black screen and some warnings about lack of authentication. Then, from an SSH session, start TS3 manually:
 
