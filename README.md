@@ -50,11 +50,72 @@ At this time, you will need to create your pulseaudio configuration, which you w
     pactl load-module module-null-sink sink_name=Virtual1
     pactl load-module module-loopback sink=Virtual1
 
+The above should create a virtual audion sink (output) and source (input). Now list the devices, and take note of the number of the newly created Sink and Source devices:
+
     pactl list sinks
     pactl list sources
 
-    pactl set-default-sink x
-    pactl set-default-source y
+Use the numer you gathered above to set those as the default Sink and Source. Substitute X and Y with the corresponding number.
 
+    pactl set-default-sink X
+    pactl set-default-source Y
 
+Now create a simple startup script that will do these (and other initialization stuff) for you as soon as the server comes up. I use the below script.
+Please note that you will need to replace the SINK and SOURCE variables with your own values (the ones you used in the above commands). Don't worry anout reboots, when the script runs on a freshly booted server, the newly created devices should always get the same numbers (at least, in my case, they do).
 
+    #!/bin/bash
+
+    export SINK=1
+    export SOURCE=2
+
+    cd
+
+    # This will make sure pulseaudio is running
+    /usr/bin/pactl stat
+    
+    # Sink/Source config
+    pactl load-module module-null-sink sink_name=Virtual1
+    pactl load-module module-loopback sink=Virtual1
+    pactl set-default-sink $SINK
+    pactl set-default-source $SOURCE
+
+    # Turn down volume a bit
+    /usr/bin/pacmd set-sink-volume $SINK 35000 [later on, replace 0 with the number of your actual output sink]
+
+    /usr/bin/mopidy &
+    sleep 5
+
+    /usr/bin/mpc random on
+    /usr/bin/mpc volume 100
+
+    /usr/bin/Xvfb :20 -screen 0 1280x1024x24 -cc 4 -nolisten tcp &
+    /usr/bin/x11vnc -display :20 -forever &
+
+    cd MojoBot && /usr/local/bin/hypnotoad MojoBot
+
+The above also assumes that you cloned the MojoBot repository into a directory called MojoBot in the bot user's home directly. You should adjust this if it's not the case.
+
+You can (actually, should) add this to the crontab:
+
+    crontab -e
+
+This should work as crontab setting:
+
+    # m h  dom mon dow   command
+    @reboot /path/to/startit > /tmp/start.out 2>&1
+
+Now, you'll need to create the initial Teamspeak config. Rin the start script manually once so you have the dummy X server and the VNC server running, and connect to it with any VNC client you line (I use one from the Chrome app store).
+
+At the beginning you will see a black screen and some warnings about lack of authentication. Then, from an SSH session, start TS3 manually:
+
+    DISPLAY=:20 ./tsclient_linux_amd64.sh
+
+At this point, the TS client should appear in your VNC screen. Click through any license dialogs and then:
+
+* Create a bookmark for the server you want to connect to. You will refer to it by the server address later.
+* Configure TS to use the virtual audio:
+   * Settings->Playback and Capture: Playback/Capture mode: Pulseaudio, default device
+   * Set capture mode to Voice Activation Detection, and set the threshold somewhere between -50 and -40
+   * Unseleft Echo reduction
+   * Under Advanced, unselect Remove background noise
+   
