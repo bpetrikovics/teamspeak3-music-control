@@ -1,4 +1,4 @@
-# MojoBot - Teamspeak bot + Mopidy remote control with simple web UI #
+# MojoBot - Teamspeak bot / Mopidy remote control #
 
 ## What it does:
 
@@ -56,13 +56,13 @@ The above should create a virtual audion sink (output) and source (input). Now l
     pactl list sinks
     pactl list sources
 
-Use the numer you gathered above to set those as the default Sink and Source. Substitute X and Y with the corresponding number.
+Use the number you gathered above to set those as the default Sink and Source. Substitute X and Y with the corresponding number.
 
     pactl set-default-sink X
     pactl set-default-source Y
 
 Now create a simple startup script that will do these (and other initialization stuff) for you as soon as the server comes up. I use the below script.
-Please note that you will need to replace the SINK and SOURCE variables with your own values (the ones you used in the above commands). Don't worry anout reboots, when the script runs on a freshly booted server, the newly created devices should always get the same numbers (at least, in my case, they do).
+Please note that you will need to replace the SINK and SOURCE variables with your own values (the ones you used in the above commands). Don't worry about reboots, when the script runs on a freshly booted server, the newly created devices should always get the same numbers (at least, in my case, they do).
 
     #!/bin/bash
 
@@ -81,7 +81,7 @@ Please note that you will need to replace the SINK and SOURCE variables with you
     pactl set-default-source $SOURCE
 
     # Turn down volume a bit
-    /usr/bin/pacmd set-sink-volume $SINK 35000 [later on, replace 0 with the number of your actual output sink]
+    /usr/bin/pacmd set-sink-volume $SINK 35000
 
     /usr/bin/mopidy &
     sleep 5
@@ -114,10 +114,10 @@ At the beginning you will see a black screen and some warnings about lack of aut
 At this point, the TS client should appear in your VNC screen. Click through any license dialogs and then:
 
 * Create a bookmark for the server you want to connect to. You will refer to it by the server address later.
-* Settings->Playback and Capture: Playback/Capture mode: Pulseaudio, default device
+* Settings->Playback and Capture: set both Playback and Capture mode to Pulseaudio, leave device set to "Default"
 * Set capture mode to Voice Activation Detection, and set the threshold somewhere between -50 and -40
 * Unseleft Echo reduction
-* Under Advanced, unselect Remove background noise
+* Under Advanced, unselect Remove background noise (messes up music)
 
 And last, look at any .dist file under the MojoBot directory, rename them (remove the .dist extension) and customize the values/settings in them.
 
@@ -159,5 +159,11 @@ I also strongly suggest to put the web UI behind a web proxy. I'm using nginx wi
     }
 
 You can notice that this is also the way I restrict the access to the bot, by a htpasswd file via nginx (as the bot does not offer any authentication out of the box yet).
+
+You're done. Now you can:
+
+* Launch mopidy and check its webinterface at http://yourhost:6680, check if it sees your media files and/or your Google Music library
+* Point your browser to the host/port your bot (or the rverse proxy) listens on.
+* The UI is dead simple. Click "Start" to start TS3 and "Kill" to kill it. :)
 
 That's all. Enjoy!
