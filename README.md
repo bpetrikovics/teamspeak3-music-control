@@ -34,6 +34,7 @@ Install components with apt-get:
 Install mopidy, see: https://docs.mopidy.com/en/latest/installation/debian/
 
 Optionally, for Google Music:
+
     sudo pip install Mopidy-Gmusic
     sudo pip install Mopidy-Gmusic-Webclient
 
