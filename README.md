@@ -104,7 +104,7 @@ Please note that you will need to replace the SINK and SOURCE variables with you
     /usr/bin/Xvfb :20 -screen 0 1280x1024x24 -cc 4 -nolisten tcp &
     /usr/bin/x11vnc -display :20 -forever &
 
-    cd MojoBot && /usr/local/bin/hypnotoad MojoBot
+    cd MojoBot && /usr/bin/hypnotoad MojoBot
 
 The above also assumes that you cloned the MojoBot repository into a directory called MojoBot in the bot user's home directly. You should adjust this if it's not the case. And don't forget to make it executable:
 
