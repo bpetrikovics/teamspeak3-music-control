@@ -4,15 +4,16 @@
     access_log => "/var/log/mojobot/access.log",
     mojo_log => "//var/log/mojobot/mojo.log",
 
-    # Which X display the teamspeak client should be on
+    # Which X display the teamspeak client should be on, this should match the
+    # port specified for Xvfb in the startup script
     xdisplay => ":20",
 
     # Which ts3 executable to run - other parameters will come from the saved
     # connection details in Teamspeak
     ts3client => "/home/mojobot/ts3/ts3client_runscript.sh",
 
-    # Straightforward - used to construct command line for teamspeak
-    # Use this to switch between servers
+    # Straightforward - used to construct command line for teamspeak. Set this to the same
+    # server address you set in the bookmark config
     teamspeakserver => "127.0.0.1",
 
     # Straightforward - when started, the bot will load and play this playlist
@@ -24,7 +25,8 @@
 
     # Hypnotoad configuration parameters
     hypnotoad => {
-	listen => ["http://*:8080"],
+        # This is the address/port the bot will listen on
+	    listen => ["http://*:8080"],
     },
 
     # Optional - if the app is behind a reverse proxy, set its port here
