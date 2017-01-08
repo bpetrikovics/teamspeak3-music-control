@@ -1,10 +1,16 @@
 # MojoBot - Teamspeak bot / Mopidy remote control #
 
+## What is this?
+
+Simple remote control webinterface written with the Mojolicious framework, allowing you to run TS3 unattended on
+a linux host and control it via browser. You will also find a quick and dirty howto that should help you to get
+your bot up and running on a newly created Debian virtual machine.
+
 ## What it does:
 
-* Runs on a Linux box, either physical or a virtual machine (tested with Debian 8 and VirtualBox)
+* Runs on a Linux box, either physical or a virtual machine; can even be a VM on your windows desktop (tested with Debian 8 and VirtualBox)
 * Uses the stock TS3 client you download from the Teamspeak website
-* Can play either local music or anything via Google Play (All access)
+* Can play either local music or anything via Google Play (All access); you just need to have a playlist defined 
 * Can be remote controlled via a very simple web UI
 
 ## Components used:
@@ -21,7 +27,13 @@
 
 ## How to get it working:
 
-Clone MojoBot into subdirectory of your liking.
+Create a user for the bot
+
+    adduser musicbot
+
+Clone the "Bot" into subdirectory of your liking. This howto assumes you used the MojoBot directory in the musicbot user's home.
+
+    git clone http://....... 
 
 Download Teamspeak from http://www.teamspeak.com/downloads (Linux client, 32 or 64-bit according to your host's architecture)
 
@@ -61,7 +73,7 @@ Use the number you gathered above to set those as the default Sink and Source. S
     pactl set-default-sink X
     pactl set-default-source Y
 
-Now create a simple startup script that will do these (and other initialization stuff) for you as soon as the server comes up. I use the below script.
+Now create a simple startup script that will do these (and other initialization stuff) for you as soon as the server comes up. I use the below script, I call it "startit".
 Please note that you will need to replace the SINK and SOURCE variables with your own values (the ones you used in the above commands). Don't worry about reboots, when the script runs on a freshly booted server, the newly created devices should always get the same numbers (at least, in my case, they do).
 
     #!/bin/bash
@@ -94,7 +106,9 @@ Please note that you will need to replace the SINK and SOURCE variables with you
 
     cd MojoBot && /usr/local/bin/hypnotoad MojoBot
 
-The above also assumes that you cloned the MojoBot repository into a directory called MojoBot in the bot user's home directly. You should adjust this if it's not the case.
+The above also assumes that you cloned the MojoBot repository into a directory called MojoBot in the bot user's home directly. You should adjust this if it's not the case. And don't forget to make it executable:
+
+    chmod +x startit
 
 You can (actually, should) add this to the crontab:
 
@@ -116,7 +130,8 @@ At this point, the TS client should appear in your VNC screen. Click through any
 * Create a bookmark for the server you want to connect to. You will refer to it by the server address later.
 * Settings->Playback and Capture: set both Playback and Capture mode to Pulseaudio, leave device set to "Default"
 * Set capture mode to Voice Activation Detection, and set the threshold somewhere between -50 and -40
-* Unseleft Echo reduction
+* Unselect Echo reduction
+* Unselect Automatic voice gain control
 * Under Advanced, unselect Remove background noise (messes up music)
 
 And last, look at any .dist file under the MojoBot directory, rename them (remove the .dist extension) and customize the values/settings in them.
@@ -124,23 +139,18 @@ And last, look at any .dist file under the MojoBot directory, rename them (remov
 * MojoBot.conf.dist: this is the one you need to really customize, and set paths, what address to listen on, what port the web UI will be accessible from the outsde (in case of using a reverse proxy), what TS server to connect to and which playlist should be played when the bot starts 
 * templates/player.html.ep.dist: most likely you don't need any change, unless you want to alter the HTML, the help text etc.
 
-I also strongly suggest to put the web UI behind a web proxy. I'm using nginx with the below settings:
+I also strongly suggest to put the web UI behind a web proxy. I'm using nginx with the below settings, listening on port 7000 on the server's public interface:
 
     upstream mojo {
         server 127.0.0.1:8080;
     }
 
     server {
-        # Plain HTTP
         listen 7000;
 
         server_name _;
 
         root /var/www/html;
-        error_page 502 /502.html;
-
-        # Add index.php to the list if you are using PHP
-        index index.html index.htm;
 
         access_log /var/log/nginx/access-mojo.log;
         error_log /var/log/nginx/error-mojo.log;
