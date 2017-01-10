@@ -83,44 +83,52 @@ Start mopidy once so it creates a default configuration; then kill it and edit t
 
 * Make sure the [http] module is enabled and set the listen address to a value that lets you reach it (0.0.0.0 would instruct it to listen on all interfaces). Make sure you protect this port with appropriate firewall settings and only allow access for yourself.
 
->    [http]
->    #enabled = true
->    hostname = 0.0.0.0
->    #port = 6680
->    #static_dir =
->    #zeroconf = Mopidy HTTP server on $hostname
+```
+    [http]
+    #enabled = true
+    hostname = 0.0.0.0
+    #port = 6680
+    #static_dir =
+    #zeroconf = Mopidy HTTP server on $hostname
+```
 
 * Make sure the mpd component is enabled and listening
 
->    [mpd]
->    #enabled = true
->    #hostname = 127.0.0.1
->    #port = 6600
+```
+    [mpd]
+    #enabled = true
+    #hostname = 127.0.0.1
+    #port = 6600
+```
 
 * Set up your media location ([local]) and/or Google Music credentials and settings (in the [gmusic] section), whichever you want to use.
 
->    [local]
->    enabled = true
->    library = json
->    media_dir = /path/to/your/local/music
->    playlists_dir = /paht/to/your/playlists
+```
+    [local]
+    enabled = true
+    library = json
+    media_dir = /path/to/your/local/music
+    playlists_dir = /paht/to/your/playlists
+```
 
 * For mopidy-gmusic, you can find configuration details here: https://github.com/mopidy/mopidy-gmusic
 
->    [gmusic]
->    enabled = true
->    username = yourloginhere
->    password = appspecificpassword
->    # 128, 160, 320
->    bitrate = 128
->    deviceid = yourhexdeviceid
->    all_access = true
->    refresh_library = 1440
->    refresh_playlists = 60
->    radio_stations_in_browse = true
->    radio_stations_as_playlists = true
->    radio_stations_count = 15
->    radio_tracks_count = 50
+```
+    [gmusic]
+    enabled = true
+    username = yourloginhere
+    password = appspecificpassword
+    # 128, 160, 320
+    bitrate = 128
+    deviceid = yourhexdeviceid
+    all_access = true
+    refresh_library = 1440
+    refresh_playlists = 60
+    radio_stations_in_browse = true
+    radio_stations_as_playlists = true
+    radio_stations_count = 15
+    radio_tracks_count = 50
+```
 
 * If you are using locally stored music, run (only once) "mopidy local scan" which will look for your files and build the media library.
 
