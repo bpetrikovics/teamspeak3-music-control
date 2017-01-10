@@ -7,7 +7,7 @@
 </head>
 <body>
 <script>
-var ws = new WebSocket('<%= url_for("ws")->to_abs->port($wsport)  %>');
+var ws = new WebSocket('<%= url_for("ws")->to_abs->port($wsport)->scheme($wsproto) %>');
 
 ws.onopen    = function (event) { ws.send('wsConnected') };
 ws.onclose   = function (event) { document.getElementById('wsStatus').innerHTML = 'disconnected'; };
