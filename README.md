@@ -73,7 +73,7 @@ Install mopidy using instructions on its website: https://docs.mopidy.com/en/lat
 
 Install the Web frontend for Mopidy:
 
-    sudo pip install Mopidy-Gmusic-Webclient
+    sudo pip install Mopidy-MusicBox-Webclient
 
 Optionally, for Google Music, you will need this one as well:
 
