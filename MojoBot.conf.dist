@@ -34,4 +34,8 @@
     # different. If not set, we'll try to use the port given in the above "listen" statement.
     proxy_port => "7000",
 
+    # Enable this if you use a https reverse proxy in front of the program. Websockets will not allow "wodngrading"
+    # security, so if the main page is viewed via HTTPS, the websocket also needs to be "secure" e.g. wss:// instead of ws://
+    # Defaults to "false".
+#    secure_websocket => "true",
 }

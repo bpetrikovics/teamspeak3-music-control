@@ -96,9 +96,11 @@ get '/player' => sub {
     # if the proxy port is not set, we attempt to split off the listen port from the
     # hypnotoad listen statement and use that as websocket port
     my @addr = split(":", $config->{hypnotoad}->{listen}[0]);
+    my $wsproto = $config->{secure_websocket} eq "true" ? "wss" : "ws";
     my $wsport = $config->{proxy_port} // $addr[-1];
 
     $c->stash(version => $VERSION);
+    $c->stash(wsproto => $wsproto);
     $c->stash(wsport => $wsport);
 
     # NB it's redundant to specify what to render if there's a template with the same name
