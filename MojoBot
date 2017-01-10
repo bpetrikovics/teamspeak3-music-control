@@ -92,7 +92,11 @@ sub getStatus {
 # This is the player app page
 get '/player' => sub {
     my $c = shift;
-    my $wsport = $config->{proxy_port} // $config->{hypnotoad}->{listen}[0];
+
+    # if the proxy port is not set, we attempt to split off the listen port from the
+    # hypnotoad listen statement and use that as websocket port
+    my @addr = split(":", $config->{hypnotoad}->{listen}[0]);
+    my $wsport = $config->{proxy_port} // $addr[-1];
 
     $c->stash(version => $VERSION);
     $c->stash(wsport => $wsport);
