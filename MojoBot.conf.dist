@@ -31,7 +31,7 @@
 
     # Set this to the port that we'll be visible on from the outside. It's normally the same port as the one
     # specified in the above listen statement, but if you use port forwarding or a reverse proxy, it can be
-    # different. This needs to be set correctly for the websocket connection to work.
+    # different. If not set, we'll try to use the port given in the above "listen" statement.
     proxy_port => "7000",
 
 }
