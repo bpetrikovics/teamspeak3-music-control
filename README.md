@@ -4,7 +4,7 @@ Web frontend to control TS3 musicbot on Linux
 
 ## What is this?
 
-This is not a musicbot per se, but rather a Web frontend with a quick howto that explains the process of setting up
+This is not a musicbot by itself, but rather a Web frontend with a quick howto that explains the process of setting up
 a stock Teamspeak client to act as a remote-controlled music player.
 
 The interface itself is written in Perl using the Mojolicious framework running on Linux. You could probably use almost any
@@ -15,6 +15,9 @@ The idea and the original setup came from these howtos:
 
 * http://forum.teamspeak.com/threads/101054-GUIDE-WALKTHROUGH-Music-bot-without-GUI-or-soundcard-ideal-for-VPS-server
 * http://haydenivey.com/blog/?p=223
+
+The name "MojoBot" somehow stuck on this little project, as I'm really bad at naming things. Obviously there are dozens of
+github projects with that name so I came up with something different, but I'm too lazy to rename the script :)
 
 ## What it does:
 
@@ -27,6 +30,7 @@ The idea and the original setup came from these howtos:
 ## ..And what it does NOT do (yet.. TBD..)
 
 * Access control - the assumption is that you would not directly put this on the internet without protection, and use some security measures to protect it (e.g. firewall; access via VPN; apply basic HTTP user/password protection with a htpasswd file; run in a VM which is not publicly accessible)
+* Does not yet support HTTPS yet (websocket URL will need to be constructed differently - the protocol does not allow "downgrading" security (e.g. plain text websocket for a HTTPS webpage)
 
 ## Components used:
 
