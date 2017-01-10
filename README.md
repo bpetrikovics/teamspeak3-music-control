@@ -141,10 +141,32 @@ based on the given host's audio devices.
     pactl load-module module-loopback sink=Virtual1
 
 The above should create a virtual audion sink (output) and source (input). Now list the devices, and take note
-of the number of the newly created Sink and Source devices:
+of the device IDs of the newly created Sink and Source devices:
 
     pactl list sinks
     pactl list sources
+
+You will see something like this:
+
+```
+Sink #0
+        State: IDLE
+        Name: auto_null
+        Description: Dummy Output
+        Driver: module-null-sink.c
+        Sample Specification: s16le 2ch 44100Hz
+```
+
+```
+Source #0
+        State: IDLE
+        Name: auto_null.monitor
+        Description: Monitor of Dummy Output
+        Driver: module-null-sink.c
+        Sample Specification: s16le 2ch 44100Hz
+```
+
+In this case, both sink and source devices got the "0" ID.
 
 Use the number you gathered above to set those as the default Sink and Source. Substitute X and Y with the
 corresponding number.
