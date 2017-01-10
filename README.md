@@ -30,7 +30,6 @@ github projects with that name so I came up with something different, but I'm to
 ## ..And what it does NOT do (yet.. TBD..)
 
 * Access control - the assumption is that you would not directly put this on the internet without protection, and use some security measures to protect it (e.g. firewall; access via VPN; apply basic HTTP user/password protection with a htpasswd file; run in a VM which is not publicly accessible)
-* Does not yet support HTTPS yet (websocket URL will need to be constructed differently - the protocol does not allow "downgrading" security (e.g. plain text websocket for a HTTPS webpage)
 
 ## Components used:
 
