@@ -23,7 +23,7 @@ github projects with that name so I came up with something different, but I'm to
 
 * Runs on a Linux box
 * Manages a stock TS3 client you download from the Teamspeak website; stops and starts it as and when needed
-* Plays music via Mopidy (a variant of MPD, the Music Player Daemon), local from local mp3 files music or anything via Google Play (All access); you just need to have a playlist defined
+* Plays music via Mopidy (a variant of MPD, the Music Player Daemon), from local mp3 files or anything via Google Play (All access); you just need to have a playlist defined
 * Re-routes the output of Mopidy to the input/source of Teamspeak
 * Gives you a simple interface to control the above
 
