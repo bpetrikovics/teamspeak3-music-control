@@ -7,6 +7,9 @@ Web frontend to control TS3 musicbot on Linux
 This is not a musicbot by itself, but rather a Web frontend with a quick howto that explains the process of setting up
 a stock Teamspeak client to act as a remote-controlled music player.
 
+Originally, this was something I made for myself and friends to provide background music for online games but decided to publish
+it due to others being interested.
+
 The interface itself is written in Perl using the Mojolicious framework running on Linux. You could probably use almost any
 distribution, I made it for and tested on Debian 8. Should work perfectly in virtual machines as well, so you can also run this
 on your Windows desktop in Virtualbox to have your bot in a nice and contained environment.
@@ -30,6 +33,7 @@ github projects with that name so I came up with something different, but I'm to
 ## ..And what it does NOT do (yet.. TBD..)
 
 * Access control - the assumption is that you would not directly put this on the internet without protection, and use some security measures to protect it (e.g. firewall; access via VPN; apply basic HTTP user/password protection with a htpasswd file; run in a VM which is not publicly accessible)
+* Please read the security section at the end!
 
 ## Components used:
 
@@ -249,8 +253,11 @@ customize the values/settings in them.
 * MojoBot.conf.dist: this is the one you need to really customize, and set paths, what address to listen on, what port the web UI will be accessible from the outsde (in case of using a reverse proxy), what TS server to connect to and which playlist should be played when the bot starts 
 * templates/player.html.ep.dist: most likely you don't need any change, unless you want to alter the HTML, the help text etc.
 
-I also strongly suggest to put the web UI behind a reverse web proxy. I'm using nginx with the below settings,
-listening on port 7000 on the server's public interface:
+## Security
+
+Please be aware that what you're doing is generally insecure: you're exposing functionality to the Internet. Therefore you should make efforts to mitigate the risks:
+
+I strongly suggest to put the web UI behind a reverse web proxy. I'm using nginx with the below settings, listening on port 7000 on the server's public interface:
 
     upstream mojo {
         server 127.0.0.1:8080;
@@ -280,6 +287,15 @@ listening on port 7000 on the server's public interface:
     }
 
 You can notice that this is also the way I restrict the access to the bot, by a htpasswd file via nginx (as the bot does not offer any authentication out of the box yet).
+It's a good idea not to have it open to the public.
+
+Do use a properly setup firewall that only allows incoming connections to the ports you absolutely need. Block access to teamspeak API port, x11vnc, mopidy, X itself.
+
+Do use a separate UNIX account to run the bot processes and take measures to lock it down (only access it via sudo for example, don't use it for anything else).
+
+Possibly use "usermatch" iptables rules to further limit the account.
+
+## Finally...
 
 You're done. Now you can:
 
