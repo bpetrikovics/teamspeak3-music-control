@@ -290,7 +290,9 @@ I strongly suggest to put the web UI behind a reverse web proxy. I'm using nginx
 You can notice that this is also the way I restrict the access to the bot, by a htpasswd file via nginx (as the bot does not offer any authentication out of the box yet).
 It's a good idea not to have it open to the public.
 
-Do use a properly setup firewall that only allows incoming connections to the ports you absolutely need. Block access to teamspeak API port, x11vnc, mopidy, X itself.
+Do use a properly setup firewall that only allows incoming connections to the ports you absolutely need. Block outside access to teamspeak API port, x11vnc, mopidy, X itself.
+
+If you need to access these, consider using a VPN.
 
 Do use a separate UNIX account to run the bot processes and take measures to lock it down (only access it via sudo for example, don't use it for anything else).
 
@@ -302,7 +304,7 @@ Use HTTPS to protect your credentials.
 
 You're done. Now you can:
 
-* Launch mopidy and check its webinterface at http://yourhost:6680, check if it sees your media files and/or your Google Music library
+* Check mopidy webinterface at http://yourhost:6680, confirm if it sees your media files and/or your Google Music library
 * Point your browser to the http://yourhost:port/player (port is 8080 is you're not using any proxy frontend; otherwise use the external port you're forwarding)
 * The UI is dead simple. Click "Start" to start TS3 and "Kill" to kill it. :)
 
