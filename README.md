@@ -255,7 +255,8 @@ customize the values/settings in them.
 
 ## Security
 
-Please be aware that what you're doing is generally insecure: you're exposing functionality to the Internet. Therefore you should make efforts to mitigate the risks:
+Please be aware that what you're doing is generally insecure: you're exposing the control over local processes to
+the Internet. Therefore you should make efforts to mitigate the risks:
 
 I strongly suggest to put the web UI behind a reverse web proxy. I'm using nginx with the below settings, listening on port 7000 on the server's public interface:
 
@@ -294,6 +295,8 @@ Do use a properly setup firewall that only allows incoming connections to the po
 Do use a separate UNIX account to run the bot processes and take measures to lock it down (only access it via sudo for example, don't use it for anything else).
 
 Possibly use "usermatch" iptables rules to further limit the account.
+
+Use HTTPS to protect your credentials.
 
 ## Finally...
 
