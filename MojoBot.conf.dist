@@ -1,5 +1,6 @@
 {
     mode => "production",
+    secret_key => "thisisyourkey",
 
     access_log => "/var/log/mojobot/access.log",
     mojo_log => "//var/log/mojobot/mojo.log",

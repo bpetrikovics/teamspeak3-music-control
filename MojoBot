@@ -374,5 +374,5 @@ Mojo::IOLoop->recurring($config->{ws_update_freq}  => sub {
     }
 });
 
-app->secrets([localtime]);
+app->secrets([$config->{secret_key} // localtime]);
 app->start;
