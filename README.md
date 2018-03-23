@@ -68,13 +68,18 @@ Execute the downloaded file and let it install itself. It will create a director
 
 Install components with apt-get:
 
-    sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc libmojolicious-perl libaudio-mpd-perl libdir-self-perl
+    sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc libmojolicious-perl libmojolicious-plugin-authentication-perl libmojolicious-plugin-bcrypt-perl libaudio-mpd-perl libdir-self-perl libdbd-sqlite3-perl
 
 Mojolicious::Plugins::AccessLog doesn't appear to be available in as debian package (correct me if I'm wrong),
 so get it from CPAN:
 
     sudo perl -MCPAN -e shell
     cpan[1]> install Mojolicious::Plugins::AccessLog
+    [...]
+    cpan[1]> install Mojo::SQLite
+
+Note for self: this might install a newer Mojolicious from CPAN than what was previously installed via apt-get. Might make sense
+to install the whole lto altogether from CPAN instead?
 
 Install mopidy using instructions on its website: https://docs.mopidy.com/en/latest/installation/
 
@@ -309,3 +314,5 @@ You're done. Now you can:
 * The UI is dead simple. Click "Start" to start TS3 and "Kill" to kill it. :)
 
 That's all. Enjoy!
+
+TODO: Add details about authentication feature

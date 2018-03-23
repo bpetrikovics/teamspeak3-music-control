@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>MojoBot - Login</title>
+%= stylesheet 'player.css'
+</head>
+</html>
+<h1>Log in</h1>
+<form action="<%= url_for("login") %>" method="post">
+    <p>User Name </p>
+    <input type="text" class="name" name="_username" required=""/>
+
+    <p>Password</p>
+
+    <input type="password" class="password" name="_password" required=""/>
+
+    <p>Ready?</p>
+
+    <input type="submit" value="Login">
+</form>

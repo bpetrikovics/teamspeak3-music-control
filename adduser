@@ -1,0 +1,22 @@
+#!/usr/bin/env perl
+
+use strict;
+
+use Mojolicious::Lite;
+use Mojolicious::Plugin::Bcrypt;
+use Mojo::SQLite;
+
+my $sqlite = Mojo::SQLite->new('sqlite:mojobot.sqlite');
+
+plugin Bcrypt => {cost => 12};
+
+print "Enter username to add: ";
+my $user = <>; chomp $user;
+
+print "Enter password [will be visible on the screen]: ";
+my $pass = <>; chomp $pass;
+
+my $cp  = app->bcrypt($pass);
+
+$sqlite->db->query("CREATE TABLE IF NOT EXISTS users (ID INTEGER PRIMARY KEY, login VARCHAR(20) NOT NULL, password VARCHAR(60) NOT NULL)");
+$sqlite->db->query("INSERT INTO USERS(login, password) VALUES('$user', '$cp')");

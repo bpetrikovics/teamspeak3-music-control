@@ -3,12 +3,15 @@
 use strict;
 
 use Mojolicious::Lite;
+use Mojolicious::Plugin::Authentication;
+use Mojolicious::Plugin::Bcrypt;
 use Mojo::JSON qw(decode_json encode_json);
+use Mojo::SQLite;
 use Audio::MPD;
 use POSIX;
 use Dir::Self;
 
-my $VERSION = "0.9.3";
+my $VERSION = "1.0";
 
 my $config = plugin 'Config' => { file => __DIR__ . "/MojoBot.conf" };
 
@@ -19,11 +22,52 @@ app->log(Mojo::Log->new(
     level => 'debug')
 );
 
-app->log->info("MojoBot $VERSION starting up in " . app->mode() . " mode");
+app->log->info("=== MojoBot $VERSION starting up in " . app->mode() . " mode ===");
+
+my $db_path = $config->{db_path} // __DIR__;
+my $db_file = $config->{db_file} // "mojobot.sqlite";
+app->log->info("Database file path: $db_path/$db_file");
+
+my $sqlite = Mojo::SQLite->new('sqlite:' . $db_path . '/' . $db_file);
+app->log->info("SQLite version: " . $sqlite->db->query('SELECT sqlite_version() AS version')->hash->{version});
+
+plugin Bcrypt => {
+    cost => 12,
+};
 
 plugin AccessLog => {
     log    => $config->{access_log} // "access.log",
     format =>  "%{X-Forwarded-For}i %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"",
+};
+
+plugin Authentication => {
+
+    load_user => sub {
+	my ($c, $user) = @_;
+	app->log->debug("auth:load_user $user");
+	my $res = $sqlite->db->query('SELECT * FROM users WHERE login=?', $user);
+	if (my $u= $res->hash) {
+	    $res->finish;
+	    return $u;
+	} else {
+	    return;
+	}
+    },
+
+    validate_user => sub {
+	my ($c, $user, $pass) = @_;
+	app->log->debug("auth:validate_user $user");
+	my $res = $sqlite->db->query('SELECT * FROM users WHERE login=?', $user);
+	my $u = $res->hash;
+	return unless $u;
+	if ($c->bcrypt_validate($pass, $u->{password})) {
+	    app->log->debug("auth:validate_user success");
+	    return $u->{login};
+	} else {
+	    return;
+	}
+    }
+
 };
 
 # If not executed via hypnotoad or morbo, provide some default params
@@ -87,7 +131,53 @@ sub getStatus {
     return $ret;
 }
 
-### Mojo routes
+### Mojolicios::Lite routes
+
+# Non-authenticated routes
+
+get '/login' => sub {
+    my $c = shift;
+    $c->render('login');
+};
+
+post '/login' => sub {
+    my $c = shift;
+    my ($user, $pass) = ($c->req->param('_username'), $c->req->param('_password'));
+    app->log->debug("Attempting to login user $user");
+    if ($c->authenticate($user, $pass)) {
+	app->log->info("Successfully authenticated $user");
+	$c->redirect_to($c->url_for("player"));
+    } else {
+	app->log->info("Failed to authenticate $user");
+	$c->render('login');
+    }
+};
+
+get '/logout' => sub {
+    my $c = shift;
+    $c->logout();
+    $c->redirect_to($c->url_for("login"));
+};
+
+# Authentication check and redirection to login route
+# This protects all routes below it
+
+under sub {
+    my $c = shift;
+
+    return 1 if $c->is_user_authenticated();
+
+    $c->redirect_to($c->url_for("login"));
+    return undef;
+};
+
+# Authenticated routes - the "under" sub will redirect to
+# the login page if we don't have login information yet
+
+get '/' => sub {
+    my $c = shift;
+    $c->redirect_to($c->url_for('player'));
+};
 
 # This is the player app page
 get '/player' => sub {
