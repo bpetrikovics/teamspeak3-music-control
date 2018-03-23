@@ -29,11 +29,7 @@ github projects with that name so I came up with something different, but I'm to
 * Plays music via Mopidy (a variant of MPD, the Music Player Daemon), from local mp3 files or anything via Google Play (All access); you just need to have a playlist defined
 * Re-routes the output of Mopidy to the input/source of Teamspeak
 * Gives you a simple interface to control the above
-
-## ..And what it does NOT do (yet.. TBD..)
-
-* Access control - the assumption is that you would not directly put this on the internet without protection, and use some security measures to protect it (e.g. firewall; access via VPN; apply basic HTTP user/password protection with a htpasswd file; run in a VM which is not publicly accessible)
-* Please read the security section at the end!
+* Provides basic authentication from SQLite database (but still, please read the section about security at the bottom of this readme)
 
 ## Components used:
 
