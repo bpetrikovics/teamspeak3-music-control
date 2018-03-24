@@ -41,7 +41,7 @@ github projects with that name so I came up with something different, but I'm to
 ## Optional, for Google Play Music:
 
 * gmusicapi (installed via pip)
-* Moopidy-Gmusic (installed via pip)
+* Mopidy-Gmusic (installed via pip)
 
 ## The Howto:
 
@@ -66,7 +66,7 @@ Install components with apt-get:
 
     sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc libmojolicious-perl libmojolicious-plugin-authentication-perl libmojolicious-plugin-bcrypt-perl libaudio-mpd-perl libdir-self-perl libdbd-sqlite3-perl
 
-Mojolicious::Plugins::AccessLog doesn't appear to be available in as debian package (correct me if I'm wrong),
+Mojolicious::Plugins::AccessLog amd Mojo::SQLite don't appear to be available in as debian package (correct me if I'm wrong),
 so get it from CPAN:
 
     sudo perl -MCPAN -e shell
@@ -74,8 +74,8 @@ so get it from CPAN:
     [...]
     cpan[1]> install Mojo::SQLite
 
-Note for self: this might install a newer Mojolicious from CPAN than what was previously installed via apt-get. Might make sense
-to install the whole lto altogether from CPAN instead?
+NOTE: CPAN install a newer Mojolicious version from CPAN than what was previously installed via apt-get. In that case it might make sense
+to install the whole lot altogether from CPAN instead, although I don't prefer it because it's easier to keep things up to date via dpkg.
 
 Install mopidy using instructions on its website: https://docs.mopidy.com/en/latest/installation/
 
@@ -248,11 +248,19 @@ At this point, the TS client should appear in your VNC screen. Click through any
 * Unselect Automatic voice gain control
 * Under Advanced, unselect Remove background noise (messes up music)
 
-And last, look at any .dist file under the MojoBot directory, rename them (remove the .dist extension) and
+Now, look at any .dist file under the MojoBot directory, rename them (remove the .dist extension) and
 customize the values/settings in them.
 
 * MojoBot.conf.dist: this is the one you need to really customize, and set paths, what address to listen on, what port the web UI will be accessible from the outsde (in case of using a reverse proxy), what TS server to connect to and which playlist should be played when the bot starts 
 * templates/player.html.ep.dist: most likely you don't need any change, unless you want to alter the HTML, the help text etc.
+* templates/login.html.ep.dist: this is the login page template, customize to your liking like the player html
+
+Last part is to set up the password database. The webpage will use HTTP basic authentication, storing user details in an SQLite database file. Passwords are
+ebcrypted using bcrypt, with the cost of 12.
+
+To set up the database file and add users to it, use the provided "adduser" script. It will ask for an username and password pair, and insert into the SQLite file.
+By default the file is called mojobot.sqlite and is located in the same directory with the script and the config file. You can customize the location by the
+db_path and db_file variable of the config file.
 
 ## Security
 
@@ -283,13 +291,8 @@ I strongly suggest to put the web UI behind a reverse web proxy. I'm using nginx
         proxy_set_header Host $host;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
-        auth_basic "Restricted";
-        auth_basic_user_file /etc/nginx/mojo.passwd;
         }
     }
-
-You can notice that this is also the way I restrict the access to the bot, by a htpasswd file via nginx (as the bot does not offer any authentication out of the box yet).
-It's a good idea not to have it open to the public.
 
 Do use a properly setup firewall that only allows incoming connections to the ports you absolutely need. Block outside access to teamspeak API port, x11vnc, mopidy, X itself.
 
