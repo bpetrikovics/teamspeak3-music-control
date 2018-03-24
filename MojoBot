@@ -28,7 +28,7 @@ my $db_path = $config->{db_path} // __DIR__;
 my $db_file = $config->{db_file} // "mojobot.sqlite";
 app->log->info("Database file path: $db_path/$db_file");
 
-my $sqlite = Mojo::SQLite->new('sqlite:' . $db_path . '/' . $db_file);
+my $sqlite = Mojo::SQLite->new("sqlite:$db_path/$db_file");
 app->log->info("SQLite version: " . $sqlite->db->query('SELECT sqlite_version() AS version')->hash->{version});
 
 plugin Bcrypt => {
@@ -46,8 +46,9 @@ plugin Authentication => {
 	my ($c, $user) = @_;
 	app->log->debug("auth:load_user $user");
 	my $res = $sqlite->db->query('SELECT * FROM users WHERE login=?', $user);
-	if (my $u= $res->hash) {
+	if (my $u = $res->hash) {
 	    $res->finish;
+            $c->req->env->{REMOTE_USER} =  $u->{login};
 	    return $u;
 	} else {
 	    return;
@@ -66,7 +67,7 @@ plugin Authentication => {
 	} else {
 	    return;
 	}
-    }
+    },
 
 };
 
