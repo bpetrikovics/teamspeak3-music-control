@@ -168,6 +168,7 @@ under sub {
 
     return 1 if $c->is_user_authenticated();
 
+    app-log->info("Session not authenticated, redirecting to login");
     $c->redirect_to($c->url_for("login"));
     return undef;
 };
