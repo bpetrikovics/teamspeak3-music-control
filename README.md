@@ -314,4 +314,3 @@ You're done. Now you can:
 
 That's all. Enjoy!
 
-TODO: Add details about authentication feature
