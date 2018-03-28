@@ -47,11 +47,12 @@ plugin Authentication => {
 	app->log->debug("auth:load_user $user");
 	my $res = $sqlite->db->query('SELECT * FROM users WHERE login=?', $user);
 	if (my $u = $res->hash) {
-	    $res->finish;
-            $c->req->env->{REMOTE_USER} =  $u->{login};
-	    return $u;
+		$res->finish;
+		$c->req->env->{REMOTE_USER} =  $u->{login};
+	  return $u;
 	} else {
-	    return;
+		$res->finish;
+		return;
 	}
     },
 
@@ -60,12 +61,13 @@ plugin Authentication => {
 	app->log->debug("auth:validate_user $user");
 	my $res = $sqlite->db->query('SELECT * FROM users WHERE login=?', $user);
 	my $u = $res->hash;
+	$res->finish;
 	return unless $u;
 	if ($c->bcrypt_validate($pass, $u->{password})) {
-	    app->log->debug("auth:validate_user success");
-	    return $u->{login};
+		app->log->debug("auth:validate_user success");
+		return $u->{login};
 	} else {
-	    return;
+		return;
 	}
     },
 
@@ -160,9 +162,8 @@ get '/logout' => sub {
     $c->redirect_to($c->url_for("login"));
 };
 
-# Authentication check and redirection to login route
-# This protects all routes below it
-
+# This provides redirection to the login page for the routes protected by it
+# (that is, everythine below before another "under" block
 under sub {
     my $c = shift;
 
@@ -173,15 +174,13 @@ under sub {
     return undef;
 };
 
-# Authenticated routes - the "under" sub will redirect to
-# the login page if we don't have login information yet
-
+# Provide login redirection for the webroot
 get '/' => sub {
     my $c = shift;
     $c->redirect_to($c->url_for('player'));
 };
 
-# This is the player app page
+# This is the player app page/template
 get '/player' => sub {
     my $c = shift;
 
@@ -198,6 +197,20 @@ get '/player' => sub {
     # NB it's redundant to specify what to render if there's a template with the same name
     # as the route
     $c->render('player');
+};
+
+# Change the protection scheme for the below routes. Instead of redirecting, we'll drop an error,
+# since these control routes will be consumed by Javascript calls that need to be able to detect
+# if the session expired
+under sub {
+		my $c = shift;
+
+		return 1 if $c->is_user_authenticated();
+
+		app->log->info("Session not authenticated, responding to control route with error");
+		$c->render(status => 403);
+
+		return undef;
 };
 
 get '/start' => sub {

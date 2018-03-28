@@ -25,11 +25,13 @@ ws.onmessage = function (event) {
 
 function backendFunc(func) {
     $.get("/" + func, function (data) {
+	    console.log(data)
 	    var str = JSON.stringify(data);
-	    console.log(str);
 	    $('#debug').text(str);
-	}
-    );
+	})
+    .fail(function() {
+	    window.location.replace('<%= url_for("login") %>')
+    });
 }
 
 </script>
