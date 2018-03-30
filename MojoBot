@@ -13,7 +13,15 @@ use Dir::Self;
 
 my $VERSION = "1.0";
 
+# global MPD object so we don't spawn a new one every time...
+my $mpd;
+
 my $config = plugin 'Config' => { file => __DIR__ . "/MojoBot.conf" };
+
+# If not executed via hypnotoad or morbo, provide some default params
+# # We'll retrieve the hypnotoad listen port and use the same value
+@ARGV = qw/daemon -l/;
+push @ARGV, @{$config->{hypnotoad}->{listen}};
 
 app->mode($config->{mode} // "development");
 
@@ -72,14 +80,6 @@ plugin Authentication => {
     },
 
 };
-
-# If not executed via hypnotoad or morbo, provide some default params
-# We'll retrieve the hypnotoad listen port and use the same value
-@ARGV = qw/daemon -l/;
-push @ARGV, @{$config->{hypnotoad}->{listen}};
-
-# global MPD object so we don't spawn a new one every time...
-my $mpd;
 
 ### Scheduled job to clean up after the TS process once it dies
 Mojo::IOLoop->recurring(1 => sub {
