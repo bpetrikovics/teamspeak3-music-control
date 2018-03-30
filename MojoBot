@@ -463,7 +463,7 @@ websocket '/ws' => sub {
 	$c->app->log->debug("WebSocket closed with status $code");
 
 	my $index = 0;
-	$index++ until $wsClients[$index] == $s;
+	$index++ until (($index == scalar @wsClients) or ($wsClients[$index] == $s));
 
 	$c->app->log->debug("Leaving client found as index $index, deleting");
 	delete $wsClients[$index];
