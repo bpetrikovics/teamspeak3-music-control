@@ -80,6 +80,7 @@ plugin Authentication => {
     },
 
 };
+app->sessions->default_expiration($config->{session_expiration_seconds});
 
 ### Scheduled job to clean up after the TS process once it dies
 Mojo::IOLoop->recurring(1 => sub {

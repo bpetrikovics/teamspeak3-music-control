@@ -39,4 +39,5 @@
     # security, so if the main page is viewed via HTTPS, the websocket also needs to be "secure" e.g. wss:// instead of ws://
     # Defaults to "false".
 #    secure_websocket => "true",
+    session_expiration_seconds => "18000",
 }
