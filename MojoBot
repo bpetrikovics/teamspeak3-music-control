@@ -392,7 +392,7 @@ get '/playlist/:playlist' => sub {
     my $error;
 
     my $plname = $c->param('playlist');
-    $plname =~ s/[^a-zA-Z0-9\-\_]//g;
+    $plname =~ s/[^a-zA-Z0-9\-\_\ \(\)]//g;
 
     if ($plname ne "") {
 	eval {
