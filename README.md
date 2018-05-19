@@ -55,7 +55,7 @@ Create a user for the bot
 Use "su" or "sudo" to switch to the newly created ID, then clone the "Bot" into subdirectory of your liking.
 This howto assumes you used the MojoBot directory in the musicbot user's home.
 
-    git clone http://....... 
+    git clone http://.......
 
 Download Teamspeak from http://www.teamspeak.com/downloads (Linux client, 32 or 64-bit according to your host's architecture)
 
@@ -251,12 +251,11 @@ At this point, the TS client should appear in your VNC screen. Click through any
 Now, look at any .dist file under the MojoBot directory, rename them (remove the .dist extension) and
 customize the values/settings in them.
 
-* MojoBot.conf.dist: this is the one you need to really customize, and set paths, what address to listen on, what port the web UI will be accessible from the outsde (in case of using a reverse proxy), what TS server to connect to and which playlist should be played when the bot starts 
+* MojoBot.conf.dist: this is the one you need to really customize, and set paths, what address to listen on, what port the web UI will be accessible from the outsde (in case of using a reverse proxy), what TS server to connect to and which playlist should be played when the bot starts
 * templates/player.html.ep.dist: most likely you don't need any change, unless you want to alter the HTML, the help text etc.
 * templates/login.html.ep.dist: this is the login page template, customize to your liking like the player html
 
-Last part is to set up the password database. The webpage will use HTTP basic authentication, storing user details in an SQLite database file. Passwords are
-ebcrypted using bcrypt, with the cost of 12.
+Last part is to set up the password database. The webpage will use HTTP basic authentication, storing user details in an SQLite database file. Passwords are encrypted using bcrypt, with the cost of 12.
 
 To set up the database file and add users to it, use the provided "adduser" script. It will ask for an username and password pair, and insert into the SQLite file.
 By default the file is called mojobot.sqlite and is located in the same directory with the script and the config file. You can customize the location by the
@@ -313,4 +312,3 @@ You're done. Now you can:
 * The UI is dead simple. Click "Start" to start TS3 and "Kill" to kill it. :)
 
 That's all. Enjoy!
-
