@@ -38,13 +38,11 @@ function backendFunc(func) {
 <h2>Music bot remote control</h2>
 <div id="player">
 <div id="service">
-Backend: <span id="wsStatus">connecting</span> /
-Bot: <span id="botOnline"></span> /
-Player: <span id="playerState"></span> /
-<!--</div>
-<div id="mpd">-->
-Random: <span id="playerRandom"></span> /
-Repeat: <span id="playerRepeat"></span> /
+Backend: <span id="wsStatus">connecting</span> |
+Bot: <span id="botOnline"></span> |
+Player: <span id="playerState"></span> |
+Random: <span id="playerRandom"></span> |
+Repeat: <span id="playerRepeat"></span> |
 Volume: <span id="playerVolume"></span>
 </div>
 <div id="song">
