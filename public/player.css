@@ -23,6 +23,14 @@ div#mpd {
     background: #f2f2ea;
 }
 
+div#playlist {
+    width: 600px;
+    background: #f3eae1;
+    text-align: center;
+    border-top: 1px dotted;
+    border-bottom: 1px dotted;
+}
+
 div#song {
     width: 600px;
     background: #f3eae1;
@@ -46,4 +54,8 @@ div#debug {
 
 ul#notes {
     width: 800px;
+}
+
+select#plselect {
+    width: 250px;
 }
