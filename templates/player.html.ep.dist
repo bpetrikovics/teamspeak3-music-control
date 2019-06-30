@@ -8,6 +8,8 @@
 </head>
 <body>
 <script>
+$.ajaxSetup({headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')}});
+
 var ws = new WebSocket('<%= url_for("ws")->to_abs->port($wsport)->scheme($wsproto) %>');
 
 ws.onopen    = function (event) { ws.send('wsConnected') };
@@ -24,14 +26,23 @@ ws.onmessage = function (event) {
 };
 
 function backendFunc(func) {
-    $.get("/" + func, function (data) {
-	    console.log(data)
+    $.get('/' + func, function (data) {
+      console.log(data);
 	    var str = JSON.stringify(data);
 	    $('#debug').text(str);
 	})
     .fail(function() {
 	    window.location.replace('<%= url_for("login") %>')
     });
+}
+
+function submitPlaylist() {
+  var pl = document.getElementById("plselect").value;
+  $.get('/playlist/' + pl, function (data) {
+    console.log(data);
+    var str = JSON.stringify(data);
+    $('#debug').text(str);
+  })
 }
 
 </script>
@@ -44,6 +55,14 @@ Player: <span id="playerState"></span> |
 Random: <span id="playerRandom"></span> |
 Repeat: <span id="playerRepeat"></span> |
 Volume: <span id="playerVolume"></span>
+</div>
+<div id="playlist">
+<select name="playlist" id="plselect" onchange="submitPlaylist()">
+<option value="" selected>--- Switch active playlist ---</option>
+% for my $item (sort keys %$playlists) {
+<option value="<%= $item %>"><%= $playlists->{$item} %></option>
+% }
+</select>
 </div>
 <div id="song">
 <span id="currentSong"></span>
@@ -71,6 +90,7 @@ Volume: <span id="playerVolume"></span>
 <li>Use Play/Stop to control the music while the bot is connected. If you want it to go away, click "Kill".
 <li>Status updates every 5 seconds. If you see "Backend: disconnected", it means you won't receive status updates although the bot may still be able to play. Try to reload the page.
 <li>After killing, don't start it again until it disappears from TS. The server won't allow the same client ID twice.</li>
+<li>When starting the bot, it loads the default playlist. During playing you can select one of the other available playlists from the dropdown list. <b>NOTE:</b> The start function will always re-load the default, so best is to first start the bot and then switch.</li>
 <li>Yes I know it looks awful. Better designs are welcome.
 <li>Thank you for reading through.
 </ul>

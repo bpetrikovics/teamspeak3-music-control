@@ -184,6 +184,7 @@ get '/' => sub {
 # This is the player app page/template
 get '/player' => sub {
     my $c = shift;
+    my $mpd;
 
     # if the proxy port is not set, we attempt to split off the listen port from the
     # hypnotoad listen statement and use that as websocket port
@@ -195,6 +196,21 @@ get '/player' => sub {
     $c->stash(wsproto => $wsproto);
     $c->stash(wsport => $wsport);
 
+    eval {
+      $mpd = new Audio::MPD;
+    } unless $mpd;
+
+    my %pls;
+    my $id = 0;
+
+    foreach my $pl ($mpd->collection->all_playlists ) {
+      $pls{$id} = $pl;
+      $id++;
+    }
+
+    $c->stash(playlists => \%pls);
+    $c->stash(current_playlist => $config->{defaultplaylist});
+
     # NB it's redundant to specify what to render if there's a template with the same name
     # as the route
     $c->render('player');
@@ -204,14 +220,14 @@ get '/player' => sub {
 # since these control routes will be consumed by Javascript calls that need to be able to detect
 # if the session expired
 under sub {
-		my $c = shift;
+    my $c = shift;
 
-		return 1 if $c->is_user_authenticated();
+    return 1 if $c->is_user_authenticated();
 
-		app->log->info("Session not authenticated, responding to control route with error");
-		$c->render(status => 403);
+    app->log->info("Session not authenticated, responding to control route with error");
+    $c->render(text => "Not authenticated", status => 403);
 
-		return undef;
+    return undef;
 };
 
 get '/start' => sub {
@@ -385,46 +401,50 @@ get '/play' => sub {
     );
 };
 
-get '/playlist/:playlist' => sub {
-    my $c = shift;
+get '/playlist/:plid' => sub {
+  my $c = shift;
+  my $mpd;
+  my $error = 0;
 
-    my $mpd;
-    my $error;
+  eval {
+    $mpd = new Audio::MPD;
+  } unless $mpd;
 
-    my $plname = $c->param('playlist');
-    $plname =~ s/[^a-zA-Z0-9\-\_\ \(\)]//g;
+  if ($@) {
+    $error += 1;
+  } else {
+    my %pls;
+    my $id = 0;
 
-    if ($plname ne "") {
-	eval {
-	    $mpd = new Audio::MPD;
-	};
-
-	if ($@) {
-	    $error += 1;
-	} else {
-	    my $pl = $mpd->playlist;
-
-	    eval {
-		my $state = $mpd->status->state;
-		$pl->clear;
-		$pl->load($plname);
-		if ($state eq "play") { $mpd->play; }
-	    };
-
-	    if ($@) { $error += 4; }
-	    else  { $error = 0; }
-	}
-    }  else {
-	$error += 2;
+    foreach my $pl ($mpd->collection->all_playlists ) {
+      $pls{$id} = $pl;
+      $id++;
     }
 
-    app->log->debug("Cleansed playlist name: $plname");
+    app->log->info("Trying to switch to playlist id: " . $c->param("plid"));
 
-    $c->render(
-	json => {
-	    'status' => $error ? "failed" : "success",
-	    }
-    );
+    my $selected_pl = $pls{$c->param('plid')};
+    if ($selected_pl eq "") {
+    $c->app->log->info("The requested playlist ID was not found");
+      $error += 2;
+    } else {
+      app->log->info("Playlist found, name is $selected_pl");
+			my $mpstate = $mpd->status->state;
+      my $pl = $mpd->playlist;
+      $pl->clear;
+      $pl->load($selected_pl);
+			# shall we $pl->shuffle ?
+			$mpd->random(1);
+			# if the music was playing at the moment of playlist switch,
+			# start it again
+      if ($mpstate eq "play") {
+          $mpd->play;
+        }
+      }
+  }
+
+  $c->render(json => {'status' => $error ? "failed" : "success"});
+
 };
 
 get '/status' => sub {
