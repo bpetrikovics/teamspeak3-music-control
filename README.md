@@ -66,15 +66,15 @@ Install components with apt-get:
 
     sudo apt-get install pulseaudio xvfb x11vnc python-pip mpc libmojolicious-perl libmojolicious-plugin-authentication-perl libmojolicious-plugin-bcrypt-perl libaudio-mpd-perl libdir-self-perl libdbd-sqlite3-perl
 
-Mojolicious::Plugins::AccessLog amd Mojo::SQLite don't appear to be available in as debian package (correct me if I'm wrong),
+Mojolicious::Plugin::AccessLog amd Mojo::SQLite don't appear to be available in as debian package (correct me if I'm wrong),
 so get it from CPAN:
 
     sudo perl -MCPAN -e shell
-    cpan[1]> install Mojolicious::Plugins::AccessLog
+    cpan[1]> install Mojolicious::Plugin::AccessLog
     [...]
     cpan[1]> install Mojo::SQLite
 
-NOTE: CPAN install a newer Mojolicious version from CPAN than what was previously installed via apt-get. In that case it might make sense
+NOTE: CPAN can install a newer Mojolicious version from CPAN than what was previously installed via apt-get. In that case it might make sense
 to install the whole lot altogether from CPAN instead, although I don't prefer it because it's easier to keep things up to date via dpkg.
 
 Install mopidy using instructions on its website: https://docs.mopidy.com/en/latest/installation/
