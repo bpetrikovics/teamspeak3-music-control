@@ -222,6 +222,13 @@ get '/player' => sub {
 under sub {
     my $c = shift;
 
+#    my $v = $c->validation;
+#    if ($v->csrf_protect->has_error("csrf_token")) {
+#      app->log->info("CSRF token is invalid, responding with error");
+#      $c->render(text => "Invalid CSRF token!", status => 403);
+#      return undef;
+#    }
+
     return 1 if $c->is_user_authenticated();
 
     app->log->info("Session not authenticated, responding to control route with error");
