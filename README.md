@@ -11,8 +11,8 @@ Originally, this was something I made for myself and friends to provide backgrou
 it due to others being interested.
 
 The interface itself is written in Perl using the Mojolicious framework running on Linux. You could probably use almost any
-distribution, I made it for and tested on Debian 8. Should work perfectly in virtual machines as well, so you can also run this
-on your Windows desktop in Virtualbox to have your bot in a nice and contained environment.
+distribution, I made it for and tested on Debian 8 and 9. Should work perfectly in virtual machines as well, so you can also
+run this on your Windows desktop in Virtualbox to have your bot in a nice and contained environment.
 
 The idea and the original setup came from these howtos:
 
